@@ -632,11 +632,13 @@ function update(dt){
 
   // fever: treats rain down
   if(G.fever>0){G.fever-=dt;
-    if(Math.random()<dt*22){const x=wx+40+Math.random()*(LW-PX-40);G.treats.push({x,y:G.camY-10,type:Math.random()<.15?'sasami':'boro',fall:90+Math.random()*80});}
+    if(Math.random()<dt*22){ // drop them where the dog will be when they reach its height
+      const f=200+Math.random()*80,y0=G.camY-10,tt=Math.max(.3,(P.lastY-34-y0)/f);
+      G.treats.push({x:wx+sp*tt-20+Math.random()*130,y:y0,type:Math.random()<.15?'sasami':'boro',fall:f});}
     if(G.fever<=0){G.fever=0;G.toast={txt:'フィーバーおしまい',t:1.4};}}
 
   // boss: a flying cleaning robot every 1000m
-  if(!G.boss&&m>=G.nextBoss){G.boss={hp:3,t:0,dx:-LW,phase:'enter',pt:0,flash:0,y:P.lastY-26};G.nextBoss+=1000;sfx('alarm');showBanner('ボス','お掃除ロボがきた! 3回ふんでやっつけよう',3.2);}
+  if(!G.boss&&m>=G.nextBoss){G.boss={hp:3,t:0,dx:LW-PX+90,phase:'enter',pt:0,flash:0,y:P.lastY-26};G.nextBoss+=1000;sfx('alarm');showBanner('ボス','お掃除ロボがきた! 3回ふんでやっつけよう',3.2);}
   if(G.boss)updateBoss(dt,wx,ch);
   if(G.state!=='play')return;
 
@@ -666,7 +668,7 @@ function update(dt){
   const mult=ch.mult*(G.fever>0?2:1);
   for(const t of G.treats){
     if(t.got)continue;
-    if(t.fall){t.y+=t.fall*dt;if(t.y>P.lastY+40)t.got=true;}
+    if(t.fall){t.y+=t.fall*dt;const gy=P.lastY-26;if(t.y>=gy){t.y=gy;t.fall=0;}}
     if(t.x>wx-26&&t.x<wx+46&&t.y>P.py-74&&t.y<P.py+6){
       t.got=true;P.happyT=.45;
       if(t.type==='heart'){sfx('heart');const o=other(G.char);const tgt=G.hp[G.char]<G.maxHp?G.char:(G.tag&&G.hp[o]<G.maxHp?o:null);
@@ -698,15 +700,17 @@ function update(dt){
 }
 function updateBoss(dt,wx,ch){
   const B=G.boss;B.t+=dt;B.pt+=dt;B.flash=Math.max(0,B.flash-dt);
-  B.y+=((P.lastY-30+Math.sin(G.t*3)*4)-B.y)*Math.min(1,dt*3);
+  if(B.phase!=='leave')B.y+=((P.lastY-30-(B.hop||0)+Math.sin(G.t*3)*4)-B.y)*Math.min(1,dt*3);
   const go=(to,sp)=>{B.dx+=(to-B.dx)*Math.min(1,dt*sp);};
-  const W=-(PX-46);
-  if(B.phase==='enter'){go(W,2.5);if(B.pt>1.6){B.phase='wait';B.pt=0;}}
-  else if(B.phase==='wait'){go(W+8+Math.sin(G.t*2)*8,3);if(B.pt>1.2){B.phase='charge';B.pt=0;}}
-  else if(B.phase==='charge'){go(30,3.2);if(B.pt>1.5){B.phase='back';B.pt=0;}}
-  else if(B.phase==='back'){go(W,2.2);if(B.pt>1){B.phase='wait';B.pt=0;}}
-  else if(B.phase==='leave'){B.dx-=260*dt;if(B.dx<-LW){G.boss=null;return;}}
-  else if(B.phase==='down'){B.y+=180*dt;B.dx-=60*dt;if(B.pt>1.2){G.boss=null;return;}return;}
+  // roam in front of the dog, inside the screen, low enough to be jumped on
+  const near=70,far=Math.max(near+60,Math.min(300,LW-PX-60)),mid=(near+far)/2,amp=(far-near)/2;
+  if(B.phase==='enter'){go(far,2.2);if(B.pt>1.4){B.phase='roam';B.pt=0;B.next=1.8+Math.random()*1.4;}}
+  else if(B.phase==='roam'){go(mid+Math.sin(B.t*1.6)*amp,2.4);B.hop=Math.max(0,Math.sin(B.t*2.3))*18;
+    if(B.pt>B.next){B.phase='charge';B.pt=0;}}
+  else if(B.phase==='charge'){go(16,3);if(B.pt>1.2){B.phase='back';B.pt=0;}}
+  else if(B.phase==='back'){go(far,2.4);if(B.pt>.9){B.phase='roam';B.pt=0;B.next=1.8+Math.random()*1.4;}}
+  else if(B.phase==='leave'){B.dx+=240*dt;B.y-=90*dt;if(B.dx>LW){G.boss=null;return;}}
+  else if(B.phase==='down'){B.y+=180*dt;B.dx+=40*dt;if(B.pt>1.2){G.boss=null;return;}return;}
   if(B.phase!=='leave'&&B.t>20){B.phase='leave';B.pt=0;G.treatPts+=100;sfx('big');showBanner('ボス','にげきった! +100',2);}
   // contact
   const bx=wx+B.dx,top=B.y-18;
@@ -717,7 +721,7 @@ function updateBoss(dt,wx,ch){
       if(B.hp<=0){B.phase='down';B.pt=0;G.treatPts+=500;sfx('win');P.happyT=2;showBanner('ボス','やっつけた! +500',2.4);
         for(let i=0;i<10;i++)G.treats.push({x:bx+i*24,y:B.y-60-Math.random()*40,type:i%3?'boro':'bone'});}
       else pop(bx,top-20,`のこり${B.hp}`,'#d9543e');
-    }else if(P.dashT>0||G.fever>0){B.phase='back';B.pt=0;B.dx-=40;}
+    }else if(P.dashT>0||G.fever>0){B.phase='back';B.pt=0;B.dx+=40;}
     else if(P.inv<=0){
       if(P.shield>0){sfx('bubble');P.shield=0;P.inv=1;bubbleBurst(wx,P.py-30);pop(wx,P.py-96,'セーフ!','#3b7fd1');}
       else if(hurt(false))return;
