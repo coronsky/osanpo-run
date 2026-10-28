@@ -363,7 +363,7 @@ function openZukan(){
   const n=tagCount();$('zukanCount2').textContent=`${n}/${TAGS.length}`;
   const links=[SHOP.minne&&`<a href="${SHOP.minne}" target="_blank" rel="noopener">minne</a>`,SHOP.base&&`<a href="${SHOP.base}" target="_blank" rel="noopener">BASE</a>`].filter(Boolean).join('・');
   $('shopBox').innerHTML=(n===TAGS.length?'<b>コンプリート! おめでとう!</b><br>':'')+
-    `ほんものの迷子札は <b>MonChien</b> で作れます。<br>${links?links+' で販売中':'minne・BASE で販売中'}`;
+    `<b>MonChien</b> のほんものの迷子札は<br>${links||'minne・BASE'} で販売予定です。お楽しみに!`;
   $('zukan').hidden=false;$('zukanClose').focus();}
 $('zukanBtn').onclick=openZukan;
 $('manualBtn').onclick=()=>{$('manual').hidden=false;$('manualClose').focus({preventScroll:true});$('manual').scrollTop=0;};$('manualClose').onclick=()=>{$('manual').hidden=true;};$('zukanClose').onclick=()=>{$('zukan').hidden=true;};
