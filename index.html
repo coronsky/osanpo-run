@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>コロンアンドムーンのお散歩ラン</title>
 <meta name="description" content="MonChien のコロンとムーンが、がけや段差をとびこえておやつを集めるランゲーム">
+<meta name="author" content="MonChien">
 <meta name="theme-color" content="#86c9ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -87,6 +88,18 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
 .zcell.no{background:rgba(255,255,255,.55)}
 .shop{background:#fff;border-radius:14px;padding:10px 14px;font-size:.82rem;line-height:1.6;max-width:520px;box-shadow:0 2px 0 rgba(47,58,74,.12)}
 .shop a{color:var(--beret);font-weight:800}
+.links{gap:4px}
+.by{font-size:.7rem!important;color:var(--muted);margin:0}
+.man{background:#fff;border-radius:16px;padding:14px 16px;max-width:560px;width:100%;box-sizing:border-box;text-align:left;box-shadow:0 2px 0 rgba(47,58,74,.12);-webkit-user-select:text;user-select:text}
+.man h1{text-align:center;margin-bottom:6px}
+.man h2{font-size:.95rem;margin:14px 0 6px;padding-left:8px;border-left:4px solid var(--tan)}
+.man p,.man li,.man dd{font-size:.82rem;line-height:1.65}
+.man ul{margin:0;padding-left:1.2em}
+.man dl{margin:0;display:grid;grid-template-columns:5.6em 1fr;gap:5px 10px}
+.man dt{font-size:.8rem;font-weight:800;line-height:1.4;padding-top:2px}
+.man dd{margin:0}
+.man .credit{text-align:center;margin-top:14px;color:var(--muted)}
+.man .credit b{color:var(--ink);font-size:1rem}
 /* share */
 .shareimg{max-height:58%;max-width:92%;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);flex:0 1 auto;min-height:0;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
 .copybox{font-size:.75rem;background:#fff;border-radius:10px;padding:6px 10px;max-width:92%;line-height:1.5;-webkit-user-select:text;user-select:text}
@@ -142,7 +155,8 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
         <button class="btn expert" id="expertBtn">エキスパート<small id="expertBest">2匹タッグ・ハート1つずつ</small></button>
         <button class="btn daily" id="dailyBtn">今日のチャレンジ<small id="dailyBest">ベスト 0</small></button>
       </div>
-      <button class="lnk" id="zukanBtn">迷子札ずかん <span id="zukanCount">0/8</span></button>
+      <div class="row links"><button class="lnk" id="zukanBtn">迷子札ずかん <span id="zukanCount">0/8</span></button><button class="lnk" id="manualBtn">あそびかた・注意事項</button></div>
+      <p class="by">制作 MonChien ・ AIを活用して制作しています</p>
     </div>
 
     <div class="overlay" id="over" hidden>
@@ -174,6 +188,62 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
       <div class="zgrid" id="zgrid"></div>
       <div class="shop" id="shopBox"></div>
       <button class="btn sub" id="zukanClose">とじる</button>
+    </div>
+
+    <div class="overlay" id="manual" hidden>
+      <div class="man">
+        <h1>あそびかた・注意事項</h1>
+
+        <h2>あそびかた</h2>
+        <p>コロンかムーンが右へ自動で走ります。谷や段差をジャンプでこえながら、おやつを集めましょう。進むほどスピードが上がり、ハートがなくなるとおしまいです。</p>
+        <dl>
+          <dt>ジャンプ</dt><dd>右下のボタンか画面タップ。長押しすると高くとびます</dd>
+          <dt>わざ</dt><dd>コロンは「ダッシュ」(体当たりで敵をたおす・空中でも落ちない)、ムーンは「シャボン」(1回だけ敵や谷から守る)。使うと少し待ち時間があります</dd>
+          <dt>こうたい</dt><dd>エキスパートモードだけ。コロンとムーンを入れ替えます</dd>
+          <dt>パソコン</dt><dd>スペース/↑ ジャンプ ・ X わざ ・ C こうたい ・ P ひとやすみ ・ M 音のオンオフ</dd>
+        </dl>
+
+        <h2>モード</h2>
+        <dl>
+          <dt>スタート</dt><dd>えらんだ子で走ります。ハートは3つ</dd>
+          <dt>エキスパート</dt><dd>コロンとムーンの2匹タッグ。ハートは1つずつ。片方がつかれたら自動で交代します</dd>
+          <dt>今日のチャレンジ</dt><dd>その日はだれが遊んでも同じコース。日本時間の0時に変わります</dd>
+        </dl>
+
+        <h2>アイテムと敵</h2>
+        <dl>
+          <dt>おやつ</dt><dd>ボーロ 10点・ささみ 30点・骨ガム 50点(コロンは1.5倍)</dd>
+          <dt>金のボーロ</dt><dd>6秒間のフィーバー。おやつが降ってきて点数2倍、敵にもぶつかってたおせます</dd>
+          <dt>ハート</dt><dd>ハートが1つ回復。エキスパートでは、つかれた子がふっかつします</dd>
+          <dt>迷子札</dt><dd>まれに落ちているレアアイテム。全8種類を「迷子札ずかん」で集めよう</dd>
+          <dt>敵</dt><dd>そうじ機・カラス・カエルは上から踏むとたおせます。いが栗は踏めないのでよけましょう</dd>
+          <dt>ボス</dt><dd>1000mごとにお掃除ロボが登場。3回踏むとやっつけ、20秒逃げ切ってもOK</dd>
+          <dt>けしき</dt><dd>400mごとに 秋 → 夕焼け → 雨の日 → 夜 → 雪 → 春 と変わります。雨の日は水たまりですべります</dd>
+        </dl>
+
+        <h2>注意事項</h2>
+        <ul>
+          <li>無料で遊べます。課金・広告・会員登録はありません。</li>
+          <li>歩きながら・乗り物を運転しながらの操作はやめましょう。</li>
+          <li>長時間続けて遊ぶときは、ときどき休憩してください。</li>
+          <li>音が出ます。まわりに気をつけて、右上のボタンで音を消せます。</li>
+          <li>名前やメールアドレスなどの個人情報は集めていません。ベストスコアや迷子札の記録は、お使いのスマホ・ブラウザの中だけに保存されます。ブラウザのデータを消すと記録も消えます。</li>
+          <li>通信量は最初に開いたとき約0.4MBです。</li>
+          <li>おすすめの環境:iPhone の Safari、Android の Chrome(どちらも最新版)。古い機種では動きがゆっくりになることがあります。</li>
+          <li>このゲームを使ったことによるトラブルや損害について、制作者は責任を負いかねます。内容は予告なく変更・終了することがあります。</li>
+          <li>イラスト・画像の無断転載や再配布はご遠慮ください。遊んだ記録の画像をSNSでシェアするのは大歓迎です。</li>
+        </ul>
+
+        <h2>このゲームについて</h2>
+        <ul>
+          <li>キャラクターのモデルは、MonChien のコロンとムーンです。</li>
+          <li>キャラクターのイラストとタイトル画像は、画像生成AIを使って作成しています。</li>
+          <li>プログラム・背景・効果音・BGMは、AI(Claude)の手伝いを受けて制作しています。</li>
+          <li>文字:M PLUS Rounded 1c(SIL Open Font License)</li>
+        </ul>
+        <p class="credit">制作 <b>MonChien</b><br><span id="verLabel">バージョン 1.0(2026年10月)</span></p>
+      </div>
+      <button class="btn sub" id="manualClose">とじる</button>
     </div>
 
     <div class="overlay" id="shareView" hidden>
@@ -295,7 +365,8 @@ function openZukan(){
   $('shopBox').innerHTML=(n===TAGS.length?'<b>コンプリート! おめでとう!</b><br>':'')+
     `ほんものの迷子札は <b>MonChien</b> で作れます。<br>${links?links+' で販売中':'minne・BASE で販売中'}`;
   $('zukan').hidden=false;$('zukanClose').focus();}
-$('zukanBtn').onclick=openZukan;$('zukanClose').onclick=()=>{$('zukan').hidden=true;};
+$('zukanBtn').onclick=openZukan;
+$('manualBtn').onclick=()=>{$('manual').hidden=false;$('manualClose').focus({preventScroll:true});$('manual').scrollTop=0;};$('manualClose').onclick=()=>{$('manual').hidden=true;};$('zukanClose').onclick=()=>{$('zukan').hidden=true;};
 
 /* ---------- game state ---------- */
 let G={state:'title',t:0,worldX:0,camY:-250};
@@ -316,7 +387,7 @@ function newGame(mode){
   P={py:0,vy:0,prevPy:0,onGround:true,air:CH[sel].air,coyote:0,buffer:0,holding:false,inv:0,shield:0,dashT:0,
      lastY:0,blocked:0,happyT:0,hurtT:0,blinkT:2,gliding:false,run:0,slip:0};
   while(G.genX<LW*3)genSegment();
-  for(const id of ['title','over','pause','zukan','shareView'])$(id).hidden=true;$('pauseBtn').hidden=false;
+  for(const id of ['title','over','pause','zukan','shareView','manual'])$(id).hidden=true;$('pauseBtn').hidden=false;
   updateControls();
   if(daily)showBanner(`今日のチャレンジ ${todayLabel()}`,'みんな同じコース!');
   if(tag)showBanner('エキスパート','ハートは1つずつ! こうたいでのりきろう',3.2);
@@ -497,7 +568,7 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>{if([' ','ArrowUp','w','W','z','Z'].includes(e.key))release();});
 $('startBtn').onclick=()=>newGame('normal');$('expertBtn').onclick=()=>newGame('expert');$('dailyBtn').onclick=()=>newGame('daily');$('retryBtn').onclick=()=>newGame(G.mode);
-function toMenu(){bgmStop();for(const id of ['over','pause','shareView','zukan'])$(id).hidden=true;$('title').hidden=false;$('pauseBtn').hidden=true;G.state='title';G.camY=-LH*CAMF;showBest();}
+function toMenu(){bgmStop();for(const id of ['over','pause','shareView','zukan','manual'])$(id).hidden=true;$('title').hidden=false;$('pauseBtn').hidden=true;G.state='title';G.camY=-LH*CAMF;showBest();}
 $('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;
 function pause(){if(G.state!=='play')return;G.state='pause';bgmStop();$('pause').hidden=false;}
 $('pauseBtn').onclick=pause;
@@ -701,7 +772,7 @@ function makeShareCanvas(){
   dog('colon',5,330,1640,2.6);dog('moon',1,760,1650,2.6);
   G.tagsGot.slice(0,6).forEach((t,i,a)=>drawTag(g,t.id,t.mat,W/2+(i-(a.length-1)/2)*120,1745,42,{}));
   g.fillStyle='#ffffff';g.font=`800 40px ${FONT}`;g.fillText('コロンアンドムーンのお散歩ラン',W/2,1835);
-  g.font=`500 32px ${FONT}`;g.fillText(SITE_URL.replace('https://',''),W/2,1885);
+  g.font=`500 32px ${FONT}`;g.fillText(`${SITE_URL.replace('https://','')} ・ 制作 MonChien`,W/2,1885);
   return c;
 }
 let shareFile=null;
