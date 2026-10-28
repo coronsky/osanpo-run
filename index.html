@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>コロンアンドムーンのお散歩ラン</title>
-<meta name="description" content="Mon Chein のコロンとムーンが、がけや段差をとびこえておやつを集めるランゲーム">
+<meta name="description" content="MonChien のコロンとムーンが、がけや段差をとびこえておやつを集めるランゲーム">
 <meta name="theme-color" content="#86c9ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -276,8 +276,8 @@ function drawTag(c,id,mat,x,y,r,opt={}){
   const hy=id==='bone'?-r*.02:id==='heart'?-r*.5:id==='paw'?r*.05:-r*.62,hx=id==='bone'?-r*.42:id==='moon'?-r*.55:0;
   c.fillStyle='rgba(255,255,255,.9)';c.beginPath();c.arc(hx,hy,Math.max(1.2,r*.11),0,7);c.fill();c.strokeStyle=m[2];c.lineWidth=Math.max(.8,r*.04);c.stroke();
   if(opt.engrave&&r>18){c.fillStyle='rgba(60,60,70,.55)';c.textAlign='center';c.font=`800 ${r*.26}px ${FONT}`;
-    const ty=id==='heart'?r*.1:id==='paw'?r*.42:r*.12;c.fillText(opt.engrave,id==='moon'?-r*.25:id==='bone'?r*.12:0,ty);
-    c.font=`500 ${r*.15}px ${FONT}`;c.fillText('Mon Chein',id==='moon'?-r*.25:id==='bone'?r*.12:0,ty+r*.22);}
+    const ty=id==='heart'?r*.1:id==='paw'?r*.42:r*.12;c.fillText(opt.engrave,id==='moon'?-r*.25:id==='bone'?r*.12:0,ty,id==='moon'?r*.8:r*1.15);
+    c.font=`500 ${r*.15}px ${FONT}`;c.fillText('MonChien',id==='moon'?-r*.25:id==='bone'?r*.12:0,ty+r*.22);}
   // shine
   c.globalAlpha=.6;c.fillStyle='#fff';c.beginPath();c.ellipse(-r*.35,-r*.3,r*.22,r*.09,-.7,0,7);c.fill();
   c.restore();
@@ -293,7 +293,7 @@ function openZukan(){
   const n=tagCount();$('zukanCount2').textContent=`${n}/${TAGS.length}`;
   const links=[SHOP.minne&&`<a href="${SHOP.minne}" target="_blank" rel="noopener">minne</a>`,SHOP.base&&`<a href="${SHOP.base}" target="_blank" rel="noopener">BASE</a>`].filter(Boolean).join('・');
   $('shopBox').innerHTML=(n===TAGS.length?'<b>コンプリート! おめでとう!</b><br>':'')+
-    `ほんものの迷子札は <b>Mon Chein</b> で作れます。<br>${links?links+' で販売中':'minne・BASE で販売中'}`;
+    `ほんものの迷子札は <b>MonChien</b> で作れます。<br>${links?links+' で販売中':'minne・BASE で販売中'}`;
   $('zukan').hidden=false;$('zukanClose').focus();}
 $('zukanBtn').onclick=openZukan;$('zukanClose').onclick=()=>{$('zukan').hidden=true;};
 
@@ -684,7 +684,7 @@ function gameOver(){
 /* ---------- share image ---------- */
 function modeLabel(){return G.daily?`今日のチャレンジ ${todayLabel()}`:G.tag?'エキスパート(2匹タッグ)':'おさんぽの記録';}
 function shareText(){const m=Math.floor(G.worldX/50);
-  return `${G.mode!=='normal'?`【${modeLabel()}】`:''}${G.tag?'コロンとムーン':CH[G.start].name}で ${m}m おさんぽしたよ! スコア ${score()} #お散歩ラン #MonChein ${SITE_URL}`;}
+  return `${G.mode!=='normal'?`【${modeLabel()}】`:''}${G.tag?'コロンとムーン':CH[G.start].name}で ${m}m おさんぽしたよ! スコア ${score()} #お散歩ラン #MonChien ${SITE_URL}`;}
 function makeShareCanvas(){
   const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d'),T=TH.pal;
   const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,T.sky0);bg.addColorStop(.62,T.sky1);bg.addColorStop(.62,T.grass);bg.addColorStop(.64,T.soil);bg.addColorStop(1,T.dot);
