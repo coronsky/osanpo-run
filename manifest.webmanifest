@@ -1,6 +1,6 @@
 {
-  "name": "コロンとムーンのおさんぽラン",
-  "short_name": "おさんぽラン",
+  "name": "コロンアンドムーンのお散歩ラン",
+  "short_name": "お散歩ラン",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

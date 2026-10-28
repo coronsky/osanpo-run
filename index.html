@@ -3,19 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>コロンとムーンのおさんぽラン</title>
-<meta name="description" content="Mon Chein のコロンとムーンが走るおさんぽランゲーム">
+<title>コロンアンドムーンのお散歩ラン</title>
+<meta name="description" content="Mon Chein のコロンとムーンが、がけや段差をとびこえておやつを集めるランゲーム">
 <meta name="theme-color" content="#86c9ec">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="おさんぽラン">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="お散歩ラン">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta property="og:title" content="コロンとムーンのおさんぽラン">
-<meta property="og:description" content="谷をとびこえて、おやつを集めよう!">
-<meta property="og:image" content="https://coronsky.github.io/osanpo-run/icon-512.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="コロンアンドムーンのお散歩ラン">
+<meta property="og:description" content="がけや段差をとびこえて、おやつを集めよう!">
+<meta property="og:url" content="https://coronsky.github.io/osanpo-run/">
+<meta property="og:image" content="https://coronsky.github.io/osanpo-run/ogp.jpg">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap">
 <style>
@@ -36,15 +38,18 @@ body{background:var(--page);color:var(--ink);font-family:var(--font);margin:0;bo
 .stage{position:relative;flex:1 1 auto;min-height:0;width:100%;border-radius:18px;overflow:hidden;
   box-shadow:0 4px 0 #b6d0de;touch-action:none;background:#9fd6f0}
 canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   gap:10px;background:rgba(255,255,255,.74);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);text-align:center;padding:14px 12px;overflow:auto}
+.overlay>:first-child{margin-top:auto}
+@media (max-height:760px){.overlay{gap:7px}.char ul{line-height:1.35}.char{padding:6px 6px 8px;gap:2px}#title>p{display:none}}.overlay>:last-child{margin-bottom:auto}
+.logo{display:block;height:min(27vh,64vw,340px);width:auto;max-width:100%;border-radius:20px;box-shadow:0 4px 0 rgba(47,58,74,.15);flex:0 0 auto}
 .overlay h1{margin:0;font-size:clamp(1.15rem,5.4vw,1.9rem);font-weight:800;text-wrap:balance;line-height:1.25}
 .overlay p{margin:0;font-size:clamp(.8rem,3.4vw,.95rem);line-height:1.6}
 .pick{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:560px}
 .char{font-family:var(--font);color:var(--ink);background:var(--card);border:3px solid transparent;border-radius:14px;
   padding:8px 6px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:left;
   box-shadow:0 3px 0 rgba(47,58,74,.15);min-width:0}
-.char img{height:clamp(56px,17vw,84px);width:auto;max-width:100%}
+.char img{height:clamp(40px,11vh,76px);width:auto;max-width:100%}
 .char .nm{font-weight:800;font-size:clamp(1rem,4.4vw,1.25rem)}
 .char .type{font-size:.72rem;font-weight:800;padding:1px 8px;border-radius:99px;color:#fff}
 .char ul{margin:2px 0 0;padding-left:1.1em;font-size:clamp(.7rem,3vw,.82rem);line-height:1.5}
@@ -92,7 +97,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
     <button class="pz" id="pauseBtn" aria-label="ひとやすみ" hidden></button><button class="snd" id="sndBtn" aria-label="音を消す"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg></button>
 
     <div class="overlay" id="title">
-      <h1>コロンとムーンのおさんぽラン</h1>
+      <img class="logo" id="logoImg" src="title.webp" alt="コロンアンドムーンのお散歩ラン">
       <p>がけや段差をとびこえて、おやつを集めよう!</p>
       <div class="pick">
         <button class="char" data-c="moon" id="pickMoon" aria-pressed="true">
