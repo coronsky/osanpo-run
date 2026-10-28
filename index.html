@@ -64,6 +64,9 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
 .btn.daily{background:var(--gold);box-shadow:0 4px 0 #9c7410}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
 .btn small{display:block;font-size:.66rem;font-weight:500;opacity:.92}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:560px}
+.modes .btn{padding:9px 6px;font-size:clamp(.84rem,3.7vw,1.02rem);white-space:normal;line-height:1.25}
+.btn.expert{background:#3f4a6b;box-shadow:0 4px 0 #262d42}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .lnk{font-family:var(--font);background:none;border:0;color:var(--ink);font-weight:800;font-size:.85rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:4px 8px}
 .result{font-variant-numeric:tabular-nums;display:grid;grid-template-columns:auto auto;gap:2px 18px;font-size:clamp(.95rem,4vw,1.1rem)}
@@ -134,9 +137,10 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
           <span class="bs">ベスト <span id="bestMoon">0</span></span>
         </button>
       </div>
-      <div class="row">
-        <button class="btn" id="startBtn">スタート</button>
-        <button class="btn daily" id="dailyBtn">今日のチャレンジ<small id="dailyBest">きょうのベスト 0</small></button>
+      <div class="modes">
+        <button class="btn" id="startBtn">スタート<small>えらんだ子・ハート3つ</small></button>
+        <button class="btn expert" id="expertBtn">エキスパート<small id="expertBest">2匹タッグ・ハート1つずつ</small></button>
+        <button class="btn daily" id="dailyBtn">今日のチャレンジ<small id="dailyBest">ベスト 0</small></button>
       </div>
       <button class="lnk" id="zukanBtn">迷子札ずかん <span id="zukanCount">0/8</span></button>
     </div>
@@ -189,7 +193,7 @@ canvas{display:block;position:absolute;inset:0;width:100%;height:100%}
     <button class="ctl" id="swapBtn" aria-label="こうたい"><img id="swapImg" alt=""><small id="swapName">こうたい</small></button>
     <button class="ctl" id="jumpBtn"><span>ジャンプ</span><small>長押しで高く</small></button>
   </div>
-  <div class="hint">画面タップ/スペース/↑ でジャンプ ・ X でわざ ・ C でこうたい ・ P でひとやすみ ・ M で音</div>
+  <div class="hint">画面タップ/スペース/↑ でジャンプ ・ X でわざ ・ C でこうたい(エキスパート) ・ P でひとやすみ ・ M で音</div>
 </div>
 
 <script>
@@ -234,7 +238,8 @@ function todayLabel(){const k=todayKey();return `${Math.floor(k/100)%100}/${k%10
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}}
 let R=Math.random;                       // random source for course generation
 function showBest(){$('bestMoon').textContent=best.moon;$('bestColon').textContent=best.colon;
-  $('dailyBest').textContent=`${todayLabel()} のベスト ${store.get('runDaily_'+todayKey(),0)}`;
+  $('dailyBest').textContent=`${todayLabel()} ベスト ${store.get('runDaily_'+todayKey(),0)}`;
+  $('expertBest').textContent=`2匹タッグ・ハート1つずつ ベスト ${store.get('runBest_expert',0)}`;
   const n=tagCount();$('zukanCount').textContent=`${n}/${TAGS.length}`;}
 
 /* ---------- 迷子札 (ID tags) ---------- */
@@ -300,12 +305,13 @@ const speedAt=x=>Math.min(420,230+x*.006);
 const RAIN=2;                                  // index of the rainy theme
 const themeAt=x=>Math.floor(x/50/400)%THEMES.length;
 
-function newGame(daily){
+function newGame(mode){
+  const daily=mode==='daily',tag=mode==='expert',maxHp=tag?1:3;
   setTheme(0,false);TH.titleT=0;
   R=daily?mulberry32(todayKey()):Math.random;
   audioInit();sfx('start');bgmStop();setTimeout(bgmStart,350);
-  G={state:'play',daily:!!daily,char:sel,start:sel,t:0,worldX:0,speed:230,genX:-200,lastY:0,first:true,ground:[],plats:[],puds:[],enemies:[],treats:[],parts:[],pops:[],
-     treatPts:0,treatN:0,tagsGot:[],hp:{colon:3,moon:3},cd:{colon:0,moon:0},swapCd:0,shake:0,camY:-LH*CAMF,fever:0,boss:null,nextBoss:1000,
+  G={state:'play',mode,daily,tag,maxHp,char:sel,start:sel,t:0,worldX:0,speed:230,genX:-200,lastY:0,first:true,ground:[],plats:[],puds:[],enemies:[],treats:[],parts:[],pops:[],
+     treatPts:0,treatN:0,tagsGot:[],hp:tag?{colon:1,moon:1}:{[sel]:3,[other(sel)]:0},cd:{colon:0,moon:0},swapCd:0,shake:0,camY:-LH*CAMF,fever:0,boss:null,nextBoss:1000,
      nextGoldX:(300+R()*250)*50,nextTagX:(180+R()*140)*50,toast:null,banner:null};
   P={py:0,vy:0,prevPy:0,onGround:true,air:CH[sel].air,coyote:0,buffer:0,holding:false,inv:0,shield:0,dashT:0,
      lastY:0,blocked:0,happyT:0,hurtT:0,blinkT:2,gliding:false,run:0,slip:0};
@@ -313,6 +319,7 @@ function newGame(daily){
   for(const id of ['title','over','pause','zukan','shareView'])$(id).hidden=true;$('pauseBtn').hidden=false;
   updateControls();
   if(daily)showBanner(`今日のチャレンジ ${todayLabel()}`,'みんな同じコース!');
+  if(tag)showBanner('エキスパート','ハートは1つずつ! こうたいでのりきろう',3.2);
 }
 
 /* ---------- sound (synthesized with Web Audio, no files) ---------- */
@@ -433,7 +440,7 @@ function addTreat(x,y,type){const t={x,y,type};if(type==='tag'){const left=TAGS.
 function treatRow(x,y,n){const r=R();for(let i=0;i<n;i++)addTreat(x+i*26,y,i===n-1&&r<.2?'sasami':'boro');}
 function platform(cx,s){
   const w=100+R()*70,y=s.y-98,r=R();if(cx+w>s.x1+60)return;G.plats.push({x0:cx,x1:cx+w,y});
-  const needHeart=G.hp&&(G.hp.colon<3||G.hp.moon<3);
+  const needHeart=G.hp&&(G.tag?(G.hp.colon<1||G.hp.moon<1):G.hp[G.char]<3);
   if(needHeart&&r<.12)addTreat(cx+w/2,y-26,'heart');
   else if(r<.45)addTreat(cx+w/2,y-26,'bone');
   else treatRow(cx+14,y-22,Math.max(2,Math.floor(w/28)));
@@ -457,7 +464,7 @@ function skill(){
   G.cd[G.char]=ch.cd;
 }
 function swapDog(force){
-  if(G.state!=='play')return;const o=other(G.char);
+  if(G.state!=='play'||!G.tag)return;const o=other(G.char);
   if(G.hp[o]<=0||(!force&&G.swapCd>0))return;
   G.char=o;G.swapCd=1;P.shield=0;P.dashT=0;P.slip=0;
   const ch=CH[o];P.air=P.onGround?ch.air:Math.min(P.air,ch.air);
@@ -469,7 +476,7 @@ function swapDog(force){
 function updateControls(){
   const k=G.char||sel,o=other(k);$('skillName').textContent=CH[k].skill;
   $('swapName').textContent=`${CH[o].name}に`;if(CARD[o])$('swapImg').src=CARD[o];
-  $('swapBtn').classList.toggle('off',!!(G.hp&&G.hp[o]<=0));
+  $('swapBtn').classList.toggle('off',!!(G.hp&&G.hp[o]<=0));$('swapBtn').hidden=!G.tag;
 }
 const jb=$('jumpBtn'),sb=$('skillBtn'),wb=$('swapBtn');
 jb.addEventListener('pointerdown',e=>{e.preventDefault();press();});
@@ -484,12 +491,12 @@ addEventListener('keydown',e=>{
   if([' ','ArrowUp','w','W','z','Z'].includes(e.key)){e.preventDefault();press();}
   if(['x','X','Shift','ArrowRight'].includes(e.key)){e.preventDefault();skill();}
   if(['c','C','ArrowDown'].includes(e.key)){e.preventDefault();swapDog(false);}
-  if(e.key==='Enter'&&!$('title').hidden)newGame(false);
+  if(e.key==='Enter'&&!$('title').hidden)newGame('normal');
   if((e.key==='p'||e.key==='P'||e.key==='Escape')&&G.state==='play')pause();
   if(e.key==='m'||e.key==='M'){audioInit();setMute(!AU.muted);}
 });
 addEventListener('keyup',e=>{if([' ','ArrowUp','w','W','z','Z'].includes(e.key))release();});
-$('startBtn').onclick=()=>newGame(false);$('dailyBtn').onclick=()=>newGame(true);$('retryBtn').onclick=()=>newGame(G.daily);
+$('startBtn').onclick=()=>newGame('normal');$('expertBtn').onclick=()=>newGame('expert');$('dailyBtn').onclick=()=>newGame('daily');$('retryBtn').onclick=()=>newGame(G.mode);
 function toMenu(){bgmStop();for(const id of ['over','pause','shareView','zukan'])$(id).hidden=true;$('title').hidden=false;$('pauseBtn').hidden=true;G.state='title';G.camY=-LH*CAMF;showBest();}
 $('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;
 function pause(){if(G.state!=='play')return;G.state='pause';bgmStop();$('pause').hidden=false;}
@@ -591,8 +598,8 @@ function update(dt){
     if(t.fall){t.y+=t.fall*dt;if(t.y>P.lastY+40)t.got=true;}
     if(t.x>wx-26&&t.x<wx+46&&t.y>P.py-74&&t.y<P.py+6){
       t.got=true;P.happyT=.45;
-      if(t.type==='heart'){sfx('heart');const tgt=G.hp[G.char]<3?G.char:other(G.char);G.hp[tgt]=Math.min(3,G.hp[tgt]+1);updateControls();
-        pop(t.x,t.y-14,tgt===G.char?'♥+1':`${CH[tgt].name}♥+1`,'#e24b5b');continue;}
+      if(t.type==='heart'){sfx('heart');const o=other(G.char);const tgt=G.hp[G.char]<G.maxHp?G.char:(G.tag&&G.hp[o]<G.maxHp?o:null);
+        if(tgt){G.hp[tgt]++;pop(t.x,t.y-14,tgt===G.char?'♥+1':`${CH[tgt].name}ふっかつ!`,'#e24b5b');}else{G.treatPts+=50;pop(t.x,t.y-14,'+50','#e24b5b');}updateControls();continue;}
       if(t.type==='gold'){sfx('gold');G.fever=6;G.treatPts+=Math.round(100*ch.mult);P.happyT=1.2;G.shake=.15;pop(t.x,t.y-14,'フィーバー!','#d9a321');
         for(let i=0;i<16;i++){const a=i/16*Math.PI*2;G.parts.push({x:t.x,y:t.y,vx:Math.cos(a)*200,vy:Math.sin(a)*200,life:.5,c:'#ffd447',s:3.5});}continue;}
       if(t.type==='tag'){sfx('tag');const tg=t.tag;owned[tg.id]=(owned[tg.id]||0)+1;store.set('runTags',owned);G.tagsGot.push(tg);G.treatPts+=100;P.happyT=1.4;
@@ -666,23 +673,25 @@ function score(){return Math.floor(G.worldX/50)+G.treatPts;}
 function gameOver(){
   G.state='over';P.hurtT=99;bgmStop();$('pauseBtn').hidden=true;const s=score();let isBest;
   if(G.daily){const k='runDaily_'+todayKey();isBest=s>store.get(k,0);if(isBest)store.set(k,s);}
+  else if(G.tag){isBest=s>store.get('runBest_expert',0);if(isBest)store.set('runBest_expert',s);}
   else{isBest=s>best[G.start];if(isBest){best[G.start]=s;store.set('runBest_'+G.start,s);}}
   setTimeout(()=>sfx(isBest?'best':'over'),250);
-  $('overTitle').textContent=(G.daily?`今日のチャレンジ ${todayLabel()}\n`:'')+(isBest?'ベスト更新!':'おさんぽおしまい!');
+  $('overTitle').textContent=(G.mode!=='normal'?modeLabel()+'\n':'')+(isBest?'ベスト更新!':'おさんぽおしまい!');
   $('rDist').textContent=Math.floor(G.worldX/50)+'m';$('rTreat').textContent=G.treatN+'こ';$('rTags').textContent=G.tagsGot.length+'まい';$('rScore').textContent=s;
   $('over').hidden=false;$('retryBtn').focus();showBest();
 }
 
 /* ---------- share image ---------- */
+function modeLabel(){return G.daily?`今日のチャレンジ ${todayLabel()}`:G.tag?'エキスパート(2匹タッグ)':'おさんぽの記録';}
 function shareText(){const m=Math.floor(G.worldX/50);
-  return `${G.daily?`【今日のチャレンジ ${todayLabel()}】`:''}コロンとムーンで ${m}m おさんぽしたよ! スコア ${score()} #お散歩ラン #MonChein ${SITE_URL}`;}
+  return `${G.mode!=='normal'?`【${modeLabel()}】`:''}${G.tag?'コロンとムーン':CH[G.start].name}で ${m}m おさんぽしたよ! スコア ${score()} #お散歩ラン #MonChein ${SITE_URL}`;}
 function makeShareCanvas(){
   const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d'),T=TH.pal;
   const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,T.sky0);bg.addColorStop(.62,T.sky1);bg.addColorStop(.62,T.grass);bg.addColorStop(.64,T.soil);bg.addColorStop(1,T.dot);
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   const logo=$('logoImg');if(logo.complete&&logo.naturalWidth){g.save();g.beginPath();g.roundRect(170,110,740,740,48);g.clip();g.drawImage(logo,170,110,740,740);g.restore();}
   g.textAlign='center';g.fillStyle='rgba(255,255,255,.88)';g.beginPath();g.roundRect(90,900,900,430,48);g.fill();
-  g.fillStyle='#55657a';g.font=`800 46px ${FONT}`;g.fillText(G.daily?`今日のチャレンジ ${todayLabel()}`:'おさんぽの記録',W/2,985);
+  g.fillStyle='#55657a';g.font=`800 46px ${FONT}`;g.fillText(modeLabel(),W/2,985);
   g.fillStyle='#2f3a4a';g.font=`800 190px ${FONT}`;g.fillText(`${Math.floor(G.worldX/50)}m`,W/2,1170);
   g.font=`800 50px ${FONT}`;g.fillStyle='#e24b5b';g.fillText(`スコア ${score()}`,W/2,1260);
   g.fillStyle='#55657a';g.font=`800 38px ${FONT}`;g.fillText(`おやつ ${G.treatN}こ ・ 迷子札 ${G.tagsGot.length}まい`,W/2,1312);
@@ -954,19 +963,20 @@ function faceState(){
 
 function drawHUD(wx){
   ctx.textAlign='left';
-  for(const [row,k] of [[0,'colon'],[1,'moon']]){
+  const rows=G.tag?[[0,'colon'],[1,'moon']]:[[0,G.char]];
+  for(const [row,k] of rows){
     const y=20+row*22,act=G.char===k,ch=CH[k];ctx.globalAlpha=act?1:.6;
     ctx.fillStyle=ch.color;ctx.beginPath();ctx.roundRect(10,y-9,44,18,9);ctx.fill();
     ctx.fillStyle='#fff';ctx.font=`800 11px ${FONT}`;ctx.textAlign='center';ctx.fillText(ch.name,32,y+4);
-    for(let i=0;i<3;i++)heart(68+i*20,y+1,8,i<G.hp[k]?'#e24b5b':'rgba(255,255,255,.8)');
+    for(let i=0;i<G.maxHp;i++)heart(68+i*20,y+1,8,i<G.hp[k]?'#e24b5b':'rgba(255,255,255,.8)');
     if(act){ctx.fillStyle='#2f3a4a';ctx.beginPath();ctx.moveTo(4,y-4);ctx.lineTo(8,y);ctx.lineTo(4,y+4);ctx.fill();}
   }
   ctx.globalAlpha=1;ctx.textAlign='left';
   ctx.font=`800 16px ${FONT}`;ctx.lineWidth=4;ctx.strokeStyle='rgba(255,255,255,.9)';
   const s2=`${score()}`,s1=`${Math.floor(wx/50)}m`;
-  ctx.strokeText(s2,12,80);ctx.fillStyle='#2f3a4a';ctx.fillText(s2,12,80);
-  ctx.font=`800 12px ${FONT}`;ctx.strokeText(s1,12,97);ctx.fillStyle='#55657a';ctx.fillText(s1,12,97);
-  if(G.daily){ctx.font=`800 10px ${FONT}`;ctx.strokeText(`今日のチャレンジ ${todayLabel()}`,12,112);ctx.fillStyle='#9c7410';ctx.fillText(`今日のチャレンジ ${todayLabel()}`,12,112);}
+  const by=G.tag?80:58;ctx.strokeText(s2,12,by);ctx.fillStyle='#2f3a4a';ctx.fillText(s2,12,by);
+  ctx.font=`800 12px ${FONT}`;ctx.strokeText(s1,12,by+17);ctx.fillStyle='#55657a';ctx.fillText(s1,12,by+17);
+  if(G.mode!=='normal'){const L=G.daily?`今日のチャレンジ ${todayLabel()}`:'エキスパート';const ly=G.tag?112:90;ctx.font=`800 10px ${FONT}`;ctx.strokeText(L,12,ly);ctx.fillStyle=G.daily?'#9c7410':'#3f4a6b';ctx.fillText(L,12,ly);}
   if(G.fever>0){const w=130,x=LW/2-w/2,y=58,k=G.fever/6;
     ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.roundRect(x,y,w,10,5);ctx.fill();
     const g=ctx.createLinearGradient(x,0,x+w,0);g.addColorStop(0,'#ffb347');g.addColorStop(1,'#ffd447');ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x,y,w*k,10,5);ctx.fill();
