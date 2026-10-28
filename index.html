@@ -203,12 +203,19 @@ const AU={ctx:null,sfx:null,mus:null,muted:false,playing:false,step:0,next:0,tim
 try{AU.muted=localStorage.getItem('runMute')==='1'}catch(e){}
 function audioInit(){
   try{
+    // iPhone: let sound play even when the silent switch is on (Safari 17+)
+    if(navigator.audioSession){try{navigator.audioSession.type='playback'}catch(e){}}
+    // after the app went to the background iOS can leave the old context silent: rebuild it
+    if(AU.ctx&&AU.stale){bgmStop();try{AU.ctx.close()}catch(e){}AU.ctx=null;}
+    const rebuilt=AU.stale;AU.stale=false;
     if(!AU.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;AU.ctx=new AC();
       const m=AU.ctx.createGain();m.gain.value=AU.muted?0:.7;m.connect(AU.ctx.destination);AU.master=m;
       AU.sfx=AU.ctx.createGain();AU.sfx.gain.value=.8;AU.sfx.connect(m);
       AU.mus=AU.ctx.createGain();AU.mus.gain.value=.3;AU.mus.connect(m);
-      const nb=AU.ctx.createBuffer(1,AU.ctx.sampleRate*.5,AU.ctx.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.noise=nb;}
-    if(AU.ctx.state!=='running')AU.ctx.resume();
+      const nb=AU.ctx.createBuffer(1,AU.ctx.sampleRate*.5,AU.ctx.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.noise=nb;
+      const sb=AU.ctx.createBufferSource();sb.buffer=AU.ctx.createBuffer(1,1,22050);sb.connect(AU.ctx.destination);sb.start(0); // unlock
+      if(rebuilt&&G.state==='play')bgmStart();}
+    if(AU.ctx.state!=='running'){const p=AU.ctx.resume();if(p&&p.catch)p.catch(()=>{});}
   }catch(e){}
 }
 const NOTE=n=>440*Math.pow(2,(n-69)/12);
@@ -261,7 +268,8 @@ function setMute(m){AU.muted=m;try{localStorage.setItem('runMute',m?'1':'0')}cat
   $('sndBtn').classList.toggle('off',m);$('sndBtn').setAttribute('aria-label',m?'音を出す':'音を消す');}
 $('sndBtn').onclick=()=>{audioInit();setMute(!AU.muted);};
 setMute(AU.muted);
-addEventListener('pointerdown',audioInit,{once:true});
+const wake=()=>{if(!AU.ctx||AU.stale||AU.ctx.state!=='running')audioInit();};
+['pointerdown','touchend','keydown'].forEach(ev=>addEventListener(ev,wake,true));
 
 /* ---------- world generation (y grows downward, 0 = start ground) ---------- */
 function genSegment(){
@@ -341,7 +349,7 @@ $('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;
 function pause(){if(G.state!=='play')return;G.state='pause';bgmStop();$('pause').hidden=false;}
 $('pauseBtn').onclick=pause;
 $('resumeBtn').onclick=()=>{audioInit();bgmStart();$('pause').hidden=true;G.state='play';last=performance.now();};
-document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){pause();if(AU.ctx)AU.stale=true;}});
 
 /* ---------- update ---------- */
 const BACK=-26,FRONT=42;      // player body extent from wx (logical units)
