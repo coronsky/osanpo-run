@@ -610,9 +610,10 @@ function update(dt){
   // landing (boss top counts as a surface only for stomping, handled below)
   let land=null;
   if(P.vy>=0){
-    for(const s of G.ground)if(wx+30>s.x0&&wx-22<s.x1&&P.prevPy<=s.y+6&&P.py>=s.y&&(land===null||s.y<land))land=s.y;
-    for(const p of G.plats)if(wx+30>p.x0&&wx-22<p.x1&&P.prevPy<=p.y+6&&P.py>=p.y&&(land===null||p.y<land))land=p.y;
+    for(const s of G.ground)if(wx+FRONT>s.x0&&wx-22<s.x1&&P.prevPy<=s.y+10&&P.py>=s.y&&(land===null||s.y<land))land=s.y;
+    for(const p of G.plats)if(wx+FRONT>p.x0&&wx-22<p.x1&&P.prevPy<=p.y+10&&P.py>=p.y&&(land===null||p.y<land))land=p.y;
   }
+  if(land===null&&P.vy>=0)for(const s of G.ground)if(wx+FRONT>s.x0&&wx-22<s.x1&&P.py>s.y&&P.py<s.y+18&&(land===null||s.y<land))land=s.y;
   if(land!==null){if(!P.onGround&&P.vy>500)dust(wx,land,5);P.py=land;P.vy=0;P.onGround=true;P.air=ch.air;P.lastY=land;}
   else{if(P.onGround)P.coyote=.09;P.onGround=false;}
 
